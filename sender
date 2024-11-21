@@ -1,0 +1,31 @@
+
+// R. Abid @CSU - // sender.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> #include <unistd.h> #include <sys/msg.h>
+struct ourMsg {
+long int msgType;
+char someText[100];
+int main(int argc, char* argv[]) { int running = 1;
+int msgID;
+struct ourMsg data;
+// 1. Getting the Message Queue,
+msgID= msgget ((key_t)3125, 0666 | IPC_CREAT);
+if (msgID == -1) {
+}
+perror("\n msgget FAILED ");
+// 2. Send the messages to the Queue until and "end" msg is found,
+while (running) {
+}
+data.msgType = 1;
+printf("\n Enter some text: ");
+gets (data.someText);
+msgsnd (msgID, &data, 100, 0);
+if (strncmp(data.someText, "end", 3) == 0)
+running = 0;
+printf("\n BYE \n");
+Ε
+-0
+-0-
+}
+return 0;
