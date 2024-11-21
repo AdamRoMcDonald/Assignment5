@@ -1,4 +1,3 @@
-// sender.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +17,7 @@ int main(int argc, char* argv[]) {
     // 1. Getting the Message Queue
     msgID = msgget((key_t)3125, 0666 | IPC_CREAT);
     if (msgID == -1) {
-        perror("\n msgget FAILED ");
+        perror("\nmsgget FAILED");
         return 1;  // Exit if msgget fails
     }
 
@@ -26,16 +25,23 @@ int main(int argc, char* argv[]) {
     while (running) {
         data.msgType = 1;  // Setting the message type
         printf("\nEnter some text: ");
-        fgets(data.someText, sizeof(data.someText), stdin);
+        
+        // Use fgets to read the message
+        if (fgets(data.someText, sizeof(data.someText), stdin) == NULL) {
+            perror("\nError reading input");
+            return 1;  // Exit if fgets fails
+        }
+
         // Remove the trailing newline character if it exists
         data.someText[strcspn(data.someText, "\n")] = 0;
 
         // Send message to queue
         if (msgsnd(msgID, &data, sizeof(data.someText), 0) == -1) {
-            perror("\n msgsnd FAILED ");
+            perror("\nmsgsnd FAILED");
             return 1;  // Exit if msgsnd fails
         }
 
+        // Check for the "end" condition to stop the loop
         if (strncmp(data.someText, "end", 3) == 0) {
             running = 0;  // Exit the loop if the message is "end"
         }
