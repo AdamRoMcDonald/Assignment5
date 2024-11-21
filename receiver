@@ -7,9 +7,9 @@ long int msgType;
 char text [100];
 };
 int main(int argc, char* argv[]) {
-int running
+int running = 1;
 int msgID;
-1;
+
 struct ourMsg data;
 long int msgToRCV = 0;
 // 1. Setting up the Message Queue,
@@ -21,11 +21,11 @@ perror("\n msgget FAILED ");
 }
 if (msgrcv(msgID, &data, 100, msgToRcv, 0) == -1)
 perror("\n msgrcv FAILED ");
--
+
 printf("\n Msg Received - You sent: %s", data.text); if (strncmp(data.text, "end", 3) == 0)
 running = 0;
 msgctl(msgID, IPC_RMID, 0); // Deleting the Message Queue,
 printf("\n BYE \n");
--0-0-
+
 return 0;
-H
+}
