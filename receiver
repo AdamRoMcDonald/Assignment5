@@ -1,0 +1,31 @@
+
+// R. Abid @CSU - // recveiver.c
+#include <stdio.h> #include <stdlib.h>
+#include <string.h> #include <unistd.h> #include <sys/msg.h>
+struct ourMsg {
+long int msgType;
+char text [100];
+};
+int main(int argc, char* argv[]) {
+int running
+int msgID;
+1;
+struct ourMsg data;
+long int msgToRCV = 0;
+// 1. Setting up the Message Queue,
+msgID = msgget((key_t)3125, 0666 | IPC_CREAT);
+if (msgID == -1) {
+}
+perror("\n msgget FAILED ");
+// 2. Retrieve the messages from the Queue until and "end" msg is found, while (running) {
+}
+if (msgrcv(msgID, &data, 100, msgToRcv, 0) == -1)
+perror("\n msgrcv FAILED ");
+-
+printf("\n Msg Received - You sent: %s", data.text); if (strncmp(data.text, "end", 3) == 0)
+running = 0;
+msgctl(msgID, IPC_RMID, 0); // Deleting the Message Queue,
+printf("\n BYE \n");
+-0-0-
+return 0;
+H
