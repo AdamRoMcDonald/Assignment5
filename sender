@@ -1,31 +1,49 @@
-
-// R. Abid @CSU - // sender.c
+// R. Abid @CSU - sender.c
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> #include <unistd.h> #include <sys/msg.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/msg.h>
+
 struct ourMsg {
-long int msgType;
-char someText[100];
-int main(int argc, char* argv[]) { int running = 1;
-int msgID;
-struct ourMsg data;
-// 1. Getting the Message Queue,
-msgID= msgget ((key_t)3125, 0666 | IPC_CREAT);
-if (msgID == -1) {
+    long int msgType;
+    char someText[100];
+};
+
+int main(int argc, char* argv[]) {
+    int running = 1;
+    int msgID;
+    struct ourMsg data;
+
+    // 1. Getting the Message Queue
+    msgID = msgget((key_t)3125, 0666 | IPC_CREAT);
+    if (msgID == -1) {
+        perror("\n msgget FAILED ");
+        return 1;  // Exit if msgget fails
+    }
+
+    // 2. Send the messages to the Queue until an "end" msg is found
+    while (running) {
+        data.msgType = 1;  // Setting the message type
+        printf("\nEnter some text: ");
+        // Use fgets instead of gets to avoid buffer overflow
+        fgets(data.someText, sizeof(data.someText), stdin);
+        
+        // Remove the trailing newline character if it exists
+        data.someText[strcspn(data.someText, "\n")] = 0;
+
+        // Send message to queue
+        if (msgsnd(msgID, &data, sizeof(data.someText), 0) == -1) {
+            perror("\n msgsnd FAILED ");
+            return 1;  // Exit if msgsnd fails
+        }
+
+        if (strncmp(data.someText, "end", 3) == 0) {
+            running = 0;  // Exit the loop if the message is "end"
+        }
+    }
+
+    printf("\nBYE\n");
+
+    return 0;
 }
-perror("\n msgget FAILED ");
-// 2. Send the messages to the Queue until and "end" msg is found,
-while (running) {
-}
-data.msgType = 1;
-printf("\n Enter some text: ");
-gets (data.someText);
-msgsnd (msgID, &data, 100, 0);
-if (strncmp(data.someText, "end", 3) == 0)
-running = 0;
-printf("\n BYE \n");
-Ε
--0
--0-
-}
-return 0;
