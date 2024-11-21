@@ -1,4 +1,4 @@
-// R. Abid @CSU - // receiver.c
+ // receiver.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,36 +14,33 @@ int main(int argc, char* argv[]) {
     int running = 1;
     int msgID;
     struct ourMsg data;
-    long int msgToRCV = 0;  // Receiving all message types
+    long int msgToRCV = 1;  // Message type should match sender
 
-    // 1. Setting up the Message Queue
+    // 1. Getting the Message Queue
     msgID = msgget((key_t)3125, 0666 | IPC_CREAT);
     if (msgID == -1) {
         perror("\n msgget FAILED ");
         return 1;  // Exit if msgget fails
     }
 
-    // 2. Retrieve the messages from the Queue until the "end" msg is found
+    // 2. Sleep for a second to give sender time to send the first message
+    sleep(1);  // Small delay to allow sender to send the first message
+
+    // 3. Retrieve the messages from the Queue until an "end" msg is found
     while (running) {
-        if (msgrcv(msgID, &data, 100, msgToRCV, 0) == -1) {
+        if (msgrcv(msgID, &data, sizeof(data.text), msgToRCV, 0) == -1) {
             perror("\n msgrcv FAILED ");
             return 1;  // Exit if msgrcv fails
         }
 
-        printf("\n Msg Received - You sent: %s", data.text);
+        printf("\nMsg Received - You sent: %s", data.text);
 
-        if (strncmp(data.text, "end", 3) == 0) {
-            running = 0;  // Exit loop when "end" message is received
-        }
+        if (strncmp(data.text, "end", 3) == 0)
+            running = 0;  // Exit the loop if the message is "end"
     }
 
-    // 3. Delete the Message Queue
-    if (msgctl(msgID, IPC_RMID, 0) == -1) {
-        perror("\n msgctl FAILED ");
-        return 1;  // Exit if msgctl fails
-    }
+    msgctl(msgID, IPC_RMID, 0);  // Deleting the Message Queue
+    printf("\nBYE\n");
 
-    printf("\n BYE \n");
     return 0;
 }
-
